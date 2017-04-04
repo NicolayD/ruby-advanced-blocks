@@ -119,17 +119,24 @@ module Enumerable
 		mapped_array
 	end
 
-	def my_inject(&block)
-		total = 0
-		total = self.first if block.call(total,self.first) == 0
-		self.my_each do |elem|
+	def my_inject(arg=nil,&block)
+		if arg != nil && (arg.is_a? Integer)
+			total = arg
+		elsif arg != nil
+			raise "Your argument must be an integer"
+		else
+			total = self.first
+		end
+
+		self.my_each_with_index do |elem,index|
+			next if index == 0 && arg == nil
 			total = block.call(total,elem)
 		end
 		total
 	end
 
 	def multiply_els
-		self.my_inject { |total, elem| total * elem }
+		self.my_inject { |total, elem| total *= elem }
 	end
 
 end
@@ -140,20 +147,27 @@ sample = [1, 5, 5, 8, 10, 19]
 
 sample.my_each_with_index { |x, y| puts "Element #{x} has index #{y}"}
 puts sample.my_select { |x| x % 5 == 0 }
+puts
 puts sample.my_all? { |x| x.is_a?(Integer) }
+puts 
 puts sample.my_none? { |x| x.is_a?(Integer) }
+puts
 puts [nil, nil].my_none?
+puts
 puts [nil, 1].my_any?
 puts sample.my_none?
 puts sample.my_all?
 puts [nil, false, 2, "my"].my_all?
 puts sample.my_map { |x| x * 2}
 puts sample.my_inject { |sum, n| sum + n } 
+puts sample.my_inject(15) { |sum, n| sum + n }
 puts sample.multiply_els
-p = Proc.new { |x| x * 2 }
-puts sample.my_map(p)
+pr = Proc.new { |x| x * 2 }
+l = lambda { |x| x * 2 }
+puts sample.my_map(pr)
 puts sample.my_map { |x| x + 1}
-puts sample.my_map(p) { |x| x + 10}
+puts sample.my_map(pr) { |x| x + 10}
 puts sample.my_count { |x| x % 5 == 0}
 puts sample.my_count
+
 =end
